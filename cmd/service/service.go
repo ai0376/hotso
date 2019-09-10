@@ -136,8 +136,6 @@ func GetHotType(c *gin.Context) {
 	case "json":
 		c.JSON(http.StatusOK, data)
 	// case "protobuf":
-	// case "xml":
-	// 	//c.XML(http.StatusOK, data)
 	default:
 		c.JSON(http.StatusOK, gin.H{
 			"hottype": c.Param("hottype"),
@@ -152,7 +150,7 @@ func main() {
 	router := gin.Default()
 	v1 := router.Group("hotso/v1")
 	{
-		v1.GET("/hotso/:hottype/:data_type/:num", GetHotType) //  http://ip:port/weibo/xml/10   获取微博热搜10条数据，并以xml方式返回
+		v1.GET("/hotso/:hottype/:data_type/:num", GetHotType) //  http://ip:port/weibo/json/10   获取微博热搜10条数据，并以json方式返回
 		v1.GET("/hotword/:hottype/:data_type/:num", GetHotWordData)
 	}
 	addr := fmt.Sprintf("%s:%d", serviceCfg.IP, serviceCfg.Port)
