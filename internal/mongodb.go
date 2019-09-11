@@ -66,3 +66,23 @@ func (m *MongoDB) OnBaiDuFindOne() *hotso.HotData {
 	}
 	return &data
 }
+
+//OnZhiHuInsert ...
+func (m *MongoDB) OnZhiHuInsert(data interface{}) {
+	s := session.Copy()
+	defer s.Close()
+	if err := s.DB("hotso").C("zhihu").Insert(data); err != nil {
+		panic(err.Error())
+	}
+}
+
+//OnZhiHuFindOne ...
+func (m *MongoDB) OnZhiHuFindOne() *hotso.HotData {
+	s := session.Copy()
+	defer s.Close()
+	var data hotso.HotData
+	if err := s.DB("hotso").C("zhihu").Find(nil).Sort("-intime").Limit(1).One(&data); err != nil {
+		panic(err.Error())
+	}
+	return &data
+}

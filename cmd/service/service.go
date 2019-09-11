@@ -14,26 +14,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// var (
-// 	hotsodata = make(map[int]*hotso.HotData)
-// )
-
-// //GetDataFromMongoDB ...
-// func GetDataFromMongoDB() {
-
-// 	tempData := make(map[int]*hotso.HotData)
-// 	for k, _ := range hotso.HotSoType {
-// 		switch k {
-// 		case hotso.WEIBO:
-// 			data := internal.NewMongoDB().OnWeiBoFindOne()
-// 			tempData[k] = data
-// 		case hotso.BAIDU:
-// 			data := internal.NewMongoDB().OnBaiDuFindOne()
-// 			tempData[k] = data
-// 		}
-// 	}
-// }
-
 //GetWeiBoData ...
 func GetWeiBoData(num int) *hotso.HotData {
 	data := internal.NewMongoDB().OnWeiBoFindOne()
@@ -76,6 +56,27 @@ func GetBaiDuData(num int) *hotso.HotData {
 	return &hotso.HotData{Type: hotdata.Type, Name: hotdata.Name, InTime: hotdata.InTime, Data: resultData}
 }
 
+//GetZhiHuData ...
+func GetZhiHuData(num int) *hotso.HotData {
+	data := internal.NewMongoDB().OnZhiHuFindOne()
+	var hotdata hotso.HotData
+	if bytes, err := bson.MarshalJSON(data); err != nil {
+		panic(err.Error())
+	} else {
+		bson.UnmarshalJSON(bytes, &hotdata)
+	}
+	var resultData []map[string]interface{}
+	index := 0
+	for _, v := range hotdata.Data.([]interface{}) {
+		index++
+		if num != 0 && index > num {
+			break
+		}
+		resultData = append(resultData, v.(map[string]interface{}))
+	}
+	return &hotso.HotData{Type: hotdata.Type, Name: hotdata.Name, InTime: hotdata.InTime, Data: resultData}
+}
+
 //GetHotWordData ...
 func GetHotWordData(c *gin.Context) {
 	cli := internal.RedisCliPool().Get()
@@ -86,6 +87,8 @@ func GetHotWordData(c *gin.Context) {
 		hottype = "weibo"
 	case "baidu":
 		hottype = "baidu"
+	// case "zhihu":
+	// 	hottype = "zhihu"
 	default:
 		c.JSON(http.StatusOK, gin.H{"code": -1, "message": "no data"})
 	}
@@ -130,6 +133,8 @@ func GetHotType(c *gin.Context) {
 		data = GetWeiBoData(num)
 	case "baidu":
 		data = GetBaiDuData(num)
+	case "zhihu":
+		data = GetZhiHuData(num)
 	default:
 	}
 	switch c.Param("data_type") {

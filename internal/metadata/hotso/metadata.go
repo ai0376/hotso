@@ -19,5 +19,5 @@ const (
 var HotSoType = map[int]string{
 	WEIBO: "WeiBo",
 	BAIDU: "BaiDu",
-	//zhihu: "ZhiHu",
+	ZHIHU: "ZhiHu",
 }
