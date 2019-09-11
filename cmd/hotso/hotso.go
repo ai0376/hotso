@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -171,10 +172,22 @@ func ProduceData(s *Spider) {
 
 func main() {
 	wg = &sync.WaitGroup{}
-	wg.Add(len(hotso.HotSoType))
-	for k, _ := range hotso.HotSoType {
-		s := &Spider{Type: k}
-		go ProduceData(s)
+	if len(os.Args) > 1 {
+		for _, v := range os.Args[1:] {
+			if n, err := strconv.Atoi(v); err != nil {
+				fmt.Println("strconv Atoi error")
+			} else {
+				wg.Add(1)
+				s := &Spider{Type: n}
+				go ProduceData(s)
+			}
+		}
+	} else {
+		wg.Add(len(hotso.HotSoType))
+		for k, _ := range hotso.HotSoType {
+			s := &Spider{Type: k}
+			go ProduceData(s)
+		}
 	}
 	wg.Wait()
 }
