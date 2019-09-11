@@ -2,10 +2,10 @@ package hotso
 
 //HotData ...
 type HotData struct {
-	Type   int
-	Name   string
-	InTime int64
-	Data   interface{}
+	Type   int         `json:"type"`
+	Name   string      `json:"name"`
+	InTime int64       `json:"intime"`
+	Data   interface{} `json:"data"`
 }
 
 //enum
