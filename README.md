@@ -108,6 +108,10 @@ Chrome浏览器 + JSON Formatter 扩展体验程序体验效果更佳
 
 ![hotword_weibo.png](https://i.loli.net/2019/09/24/tyEFzrcdkmHYTlp.png "微博热词")
 
+## 声明
+
+抓取数据仅供个人学习，以及本人在工作时间关注实时热点提供方便，无任何商业用途，如有侵权，联系删除
+
 ## 反馈
 
 roading@pm.me
