@@ -87,6 +87,27 @@
 
 热词最多提供100条
 
+## 样例
+
+* [weibo 10条](http://121.41.23.201:8806/hotso/v1/hotso/weibo/json/10)
+
+* [baidu 10条](http://121.41.23.201:8806/hotso/v1/hotso/baidu/json/10)
+
+* [zhihu 10条](http://121.41.23.201:8806/hotso/v1/hotso/zhihu/json/10)
+
+* [hotwords 10条](http://121.41.23.201:8806/hotso/v1/hotword/weibo/json/10)
+
+
+Chrome浏览器 + JSON Formatter 扩展体验程序体验效果更佳
+
+![hot_weibo.png](https://i.loli.net/2019/09/24/XxbJaI8n59u4mM2.png "微博热搜")
+
+![hot_baidu.png](https://i.loli.net/2019/09/24/4o89aSig1WfmGhl.png "百度实时热搜")
+
+![hot_zhihu.png](https://i.loli.net/2019/09/24/TwLYEqAm7duDB41.png "知乎热搜")
+
+![hotword_weibo.png](https://i.loli.net/2019/09/24/tyEFzrcdkmHYTlp.png "微博热词")
+
 ## 反馈
 
 roading@pm.me
