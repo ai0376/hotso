@@ -114,7 +114,8 @@ func GetHotWordData(c *gin.Context) {
 	}
 	switch c.Param("data_type") {
 	case "json":
-		c.JSON(http.StatusOK, result)
+		//c.JSON(http.StatusOK, result)
+		c.IndentedJSON(http.StatusOK, result)
 	default:
 		c.JSON(http.StatusOK, gin.H{
 			"code":    -1,
@@ -139,7 +140,8 @@ func GetHotType(c *gin.Context) {
 	}
 	switch c.Param("data_type") {
 	case "json":
-		c.JSON(http.StatusOK, data)
+		//c.JSON(http.StatusOK, data)
+		c.IndentedJSON(http.StatusOK, data)
 	// case "protobuf":
 	default:
 		c.JSON(http.StatusOK, gin.H{
