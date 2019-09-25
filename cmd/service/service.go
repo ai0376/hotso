@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -13,6 +15,25 @@ import (
 	"github.com/mjrao/hotso/internal/metadata/hotso"
 	"gopkg.in/mgo.v2/bson"
 )
+
+//ResponIndentJSON ...
+func ResponIndentJSON(c *gin.Context, code int, obj interface{}) error {
+	c.Status(code)
+	w := c.Writer
+	header := w.Header()
+	if val := header["Content-Type"]; len(val) == 0 {
+		header["Content-Type"] = []string{"application/json; charset=utf-8"}
+	}
+	jsonBytes, err := json.MarshalIndent(obj, "", "    ")
+	if err != nil {
+		return err
+	}
+	jsonBytes = bytes.Replace(jsonBytes, []byte("\\u003c"), []byte("<"), -1)
+	jsonBytes = bytes.Replace(jsonBytes, []byte("\\u003e"), []byte(">"), -1)
+	jsonBytes = bytes.Replace(jsonBytes, []byte("\\u0026"), []byte("&"), -1)
+	_, err = w.Write(jsonBytes)
+	return err
+}
 
 //GetWeiBoData ...
 func GetWeiBoData(num int) *hotso.HotData {
@@ -115,7 +136,7 @@ func GetHotWordData(c *gin.Context) {
 	switch c.Param("data_type") {
 	case "json":
 		//c.JSON(http.StatusOK, result)
-		c.IndentedJSON(http.StatusOK, result)
+		ResponIndentJSON(c, http.StatusOK, result)
 	default:
 		c.JSON(http.StatusOK, gin.H{
 			"code":    -1,
@@ -141,7 +162,7 @@ func GetHotType(c *gin.Context) {
 	switch c.Param("data_type") {
 	case "json":
 		//c.JSON(http.StatusOK, data)
-		c.IndentedJSON(http.StatusOK, data)
+		ResponIndentJSON(c, http.StatusOK, data)
 	// case "protobuf":
 	default:
 		c.JSON(http.StatusOK, gin.H{
