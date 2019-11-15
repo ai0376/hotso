@@ -10,14 +10,16 @@ type HotData struct {
 
 //enum
 const (
-	WEIBO = iota
-	BAIDU
-	ZHIHU
+	WEIBO  = iota //微博
+	BAIDU         //百度
+	ZHIHU         //知乎
+	SHUIMU        //水木
 )
 
 //HotSoType ...
 var HotSoType = map[int]string{
-	WEIBO: "WeiBo",
-	BAIDU: "BaiDu",
-	ZHIHU: "ZhiHu",
+	WEIBO:  "WeiBo",
+	BAIDU:  "BaiDu",
+	ZHIHU:  "ZhiHu",
+	SHUIMU: "ShuiMu",
 }

@@ -148,6 +148,31 @@ func (s *Spider) OnZhiHu() []map[string]interface{} {
 	return allData
 }
 
+//OnShuiMu 水木十大热点
+func (s *Spider) OnShuiMu() []map[string]interface{} {
+	url := "www.newsmth.net"
+	var allData []map[string]interface{}
+	c := colly.NewCollector(colly.MaxDepth(1), colly.UserAgent(userAgent))
+	c.OnError(func(r *colly.Response, err error) {
+		fmt.Println("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
+	})
+	c.OnHTML("#top10 > ul", func(e *colly.HTMLElement) {
+		index := 1
+		e.ForEach("ul > li", func(i int, ex *colly.HTMLElement) {
+			// top := index
+			// title := ex.ChildText("div > a:nth-child(2)")
+			// reading := ex.ChildText("td.last > span")
+			// url := ex.ChildAttr("div > a:nth-child(2)", "href")
+			// state := ex.ChildText("div > a:nth-child(1)") //板块
+			// fmt.Println(top, title, reading, url, state)
+			//allData = append(allData, map[string]interface{}{"top": top, "title": common.GBK2UTF8(title), "reading": reading, "url": url, "state": state})
+			index++
+		})
+	})
+	c.Visit(url)
+	return allData
+}
+
 //ProduceData ...
 func ProduceData(s *Spider) {
 	defer wg.Done()
@@ -164,6 +189,8 @@ func ProduceData(s *Spider) {
 			internal.NewMongoDB().OnBaiDuInsert(&hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
 		case hotso.ZHIHU:
 			internal.NewMongoDB().OnZhiHuInsert(&hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
+		case hotso.SHUIMU:
+			internal.NewMongoDB().OnShuiMuInsert(&hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
 		}
 	} else {
 		fmt.Println("originData nil")
