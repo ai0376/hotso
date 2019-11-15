@@ -1,0 +1,9 @@
+sudo: false
+language: go
+go:
+    - "1.13.x"
+    
+script:
+    - cd $TRAVIS_BUILD_DIR/cmd/hotso && go build
+    - cd $TRAVIS_BUILD_DIR/cmd/service && go build
+    - cd $TRAVIS_BUILD_DIR/cmd/webdavcli && go build 
