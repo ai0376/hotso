@@ -1,5 +1,7 @@
 # hotso
 
+[![Build Status](https://travis-ci.org/mjrao/hotso.svg?branch=master)](https://travis-ci.org/mjrao/hotso)
+
 ## 介绍
 定时抓取百度和微博热搜数据,并对数据定时进行分词后, 提供数据接口服务
 
