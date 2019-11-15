@@ -95,15 +95,16 @@
 
 ## 样例
 
-* [weibo 10条](http://121.41.23.201:8806/hotso/v1/hotso/weibo/json/10)
+* [weibo 10条](http://ownwiki.cn:8806/hotso/v1/hotso/weibo/json/10)
 
-* [baidu 10条](http://121.41.23.201:8806/hotso/v1/hotso/baidu/json/10)
+* [baidu 10条](http://ownwiki.cn:8806/hotso/v1/hotso/baidu/json/10)
 
-* [zhihu 10条](http://121.41.23.201:8806/hotso/v1/hotso/zhihu/json/10) 
+* [zhihu 10条](http://ownwiki.cn:8806/hotso/v1/hotso/zhihu/json/10) 
     
     由于知乎热搜需要登陆才能获取，目前做法是人工通过浏览器登陆之后保存cookie,并将cookie存储在云盘里，程序通过webdav方式获取保存的cookie，无任何商业用途，仅供学习和上班时间看知乎热搜方便，希望知乎大佬不要封了我的IP和账户
+* [水木10大 10条](http://ownwiki.cn:8806/hotso/v1/hotso/shuimu/json/10)
 
-* [hotwords 10条](http://121.41.23.201:8806/hotso/v1/hotword/weibo/json/10)
+* [hotwords 10条](http://ownwiki.cn:8806/hotso/v1/hotword/weibo/json/10)
 
 
 Chrome浏览器 + JSON Formatter 扩展体验程序体验效果更佳
@@ -113,6 +114,8 @@ Chrome浏览器 + JSON Formatter 扩展体验程序体验效果更佳
 ![hot_baidu.png](https://i.loli.net/2019/09/24/4o89aSig1WfmGhl.png "百度实时热搜")
 
 ![hot_zhihu.png](https://i.loli.net/2019/09/24/TwLYEqAm7duDB41.png "知乎热搜")
+
+![hot_shuimu.png](https://i.loli.net/2019/11/15/d2KOqTCSaYbjL7M.png "水木10大")
 
 ![hotword_weibo.png](https://i.loli.net/2019/09/24/tyEFzrcdkmHYTlp.png "微博热词")
 
