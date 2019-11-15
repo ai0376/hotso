@@ -98,6 +98,27 @@ func GetZhiHuData(num int) *hotso.HotData {
 	return &hotso.HotData{Type: hotdata.Type, Name: hotdata.Name, InTime: hotdata.InTime, Data: resultData}
 }
 
+//GetShuiMuData ...
+func GetShuiMuData(num int) *hotso.HotData {
+	data := internal.NewMongoDB().OnShuiMuFindOne()
+	var hotdata hotso.HotData
+	if bytes, err := bson.MarshalJSON(data); err != nil {
+		panic(err.Error())
+	} else {
+		bson.UnmarshalJSON(bytes, &hotdata)
+	}
+	var resultData []map[string]interface{}
+	index := 0
+	for _, v := range hotdata.Data.([]interface{}) {
+		index++
+		if num != 0 && index > num {
+			break
+		}
+		resultData = append(resultData, v.(map[string]interface{}))
+	}
+	return &hotso.HotData{Type: hotdata.Type, Name: hotdata.Name, InTime: hotdata.InTime, Data: resultData}
+}
+
 //GetHotWordData ...
 func GetHotWordData(c *gin.Context) {
 	cli := internal.RedisCliPool().Get()
@@ -157,6 +178,8 @@ func GetHotType(c *gin.Context) {
 		data = GetBaiDuData(num)
 	case "zhihu":
 		data = GetZhiHuData(num)
+	case "shuimu":
+		data = GetShuiMuData(num)
 	default:
 	}
 	switch c.Param("data_type") {
