@@ -172,7 +172,7 @@ func (s *Spider) OnShuiMu() []map[string]interface{} {
 				url = fmt.Sprintf("%s%s", pcViewStr, url[1:])
 				state := "" //ex.ChildText("div > a:nth-child(1)") //板块
 				//fmt.Println(top, title, reading, url, state)
-				allData = append(allData, map[string]interface{}{"top": top, "title": common.GBK2UTF8(title), "reading": reading, "url": url, "state": state})
+				allData = append(allData, map[string]interface{}{"top": top, "title": title, "reading": reading, "url": url, "state": state})
 			}
 			index++
 		})
