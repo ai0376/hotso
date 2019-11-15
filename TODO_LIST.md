@@ -1,5 +1,5 @@
 
-mongodb 查询热度为"沸" 的最近三条微博数据
+* mongodb 查询热度为"沸" 的最近三条微博数据
 
 ```
 db.weibo.find({"data.state":"沸"},{"data":{$elemMatch:{"state":"沸"}}, "intime":1}).sort({"intime":-1}).limit(3)
@@ -51,4 +51,10 @@ db.weibo.find({"data.state":"沸"},{"data":{$elemMatch:{"state":"沸"}}, "intime
         }
     ]
 }
+```
+
+* 标题模糊查找
+
+```
+db.weibo.find({"data.title":{"$regex":"别墅"}},{"data":{$elemMatch:{"title":{"$regex":"别墅"}}}, "intime":1}).sort({"intime":-1})
 ```
