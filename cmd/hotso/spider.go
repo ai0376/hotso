@@ -150,22 +150,30 @@ func (s *Spider) OnZhiHu() []map[string]interface{} {
 
 //OnShuiMu 水木十大热点
 func (s *Spider) OnShuiMu() []map[string]interface{} {
-	url := "www.newsmth.net"
+	url := "http://m.newsmth.net/"
+	pcViewStr := "www.newsmth.net/nForum/#!"
 	var allData []map[string]interface{}
 	c := colly.NewCollector(colly.MaxDepth(1), colly.UserAgent(userAgent))
 	c.OnError(func(r *colly.Response, err error) {
 		fmt.Println("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
 	})
-	c.OnHTML("#top10 > ul", func(e *colly.HTMLElement) {
-		index := 1
+	c.OnHTML("#m_main > ul", func(e *colly.HTMLElement) {
+		index := 0
 		e.ForEach("ul > li", func(i int, ex *colly.HTMLElement) {
-			// top := index
-			// title := ex.ChildText("div > a:nth-child(2)")
-			// reading := ex.ChildText("td.last > span")
-			// url := ex.ChildAttr("div > a:nth-child(2)", "href")
-			// state := ex.ChildText("div > a:nth-child(1)") //板块
-			// fmt.Println(top, title, reading, url, state)
-			//allData = append(allData, map[string]interface{}{"top": top, "title": common.GBK2UTF8(title), "reading": reading, "url": url, "state": state})
+			if index > 0 {
+				top := index
+				title := ex.ChildText("li > a")
+				n := strings.Index(title, "(")
+				if n > 0 {
+					title = title[:n]
+				}
+				reading := ex.ChildText("li > a > span")
+				url := ex.ChildAttr("li > a", "href")
+				url = fmt.Sprintf("%s%s", pcViewStr, url[1:])
+				state := "" //ex.ChildText("div > a:nth-child(1)") //板块
+				//fmt.Println(top, title, reading, url, state)
+				allData = append(allData, map[string]interface{}{"top": top, "title": common.GBK2UTF8(title), "reading": reading, "url": url, "state": state})
+			}
 			index++
 		})
 	})
