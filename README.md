@@ -81,6 +81,8 @@
 
 * [天涯热帖 10条](http://ownwiki.cn:8806/hotso/v1/hotso/tianya/json/10)
 
+* [V2EX最热 10条](http://ownwiki.cn:8806/hotso/v1/hotso/v2ex/json/10)
+
 * [微博热搜分词 10条](http://ownwiki.cn:8806/hotso/v1/hotword/weibo/json/10)
 
 ## 声明

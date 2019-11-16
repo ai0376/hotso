@@ -126,3 +126,23 @@ func (m *MongoDB) OnTianYaFindOne() *hotso.HotData {
 	}
 	return &data
 }
+
+//OnV2EXInsert ...
+func (m *MongoDB) OnV2EXInsert(data interface{}) {
+	s := session.Copy()
+	defer s.Close()
+	if err := s.DB("hotso").C("v2ex").Insert(data); err != nil {
+		panic(err.Error())
+	}
+}
+
+//OnV2EXFindOne ...
+func (m *MongoDB) OnV2EXFindOne() *hotso.HotData {
+	s := session.Copy()
+	defer s.Close()
+	var data hotso.HotData
+	if err := s.DB("hotso").C("v2ex").Find(nil).Sort("-intime").Limit(1).One(&data); err != nil {
+		panic(err.Error())
+	}
+	return &data
+}

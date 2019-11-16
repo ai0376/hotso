@@ -208,6 +208,37 @@ func (s *Spider) OnTianYa() []map[string]interface{} {
 	return allData
 }
 
+//OnV2EX v2ex最热
+func (s *Spider) OnV2EX() []map[string]interface{} {
+	url := "https://v2ex.com/?tab=hot"
+	domain := "https://v2ex.com"
+	var allData []map[string]interface{}
+	c := colly.NewCollector(colly.MaxDepth(1), colly.UserAgent(userAgent))
+	c.OnError(func(r *colly.Response, err error) {
+		fmt.Println("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
+	})
+	c.OnHTML("#Main > div:nth-child(2)", func(e *colly.HTMLElement) {
+		index := 0
+		e.ForEach("div:nth-child(2) > div", func(i int, ex *colly.HTMLElement) {
+			if index > 0 {
+				top := strconv.Itoa(index)
+				title := ex.ChildText("table > tbody > tr > td:nth-child(3) > span.item_title > a")
+				if title != "" {
+					reading := ex.ChildText("table > tbody > tr > td:nth-child(4) > a")
+					url := ex.ChildAttr("table > tbody > tr > td:nth-child(3) > span.item_title > a", "href")
+					url = fmt.Sprintf("%s%s", domain, url)
+					state := "" //ex.ChildText("div > a:nth-child(1)") //板块
+					//fmt.Println(top, title, reading, url, state)
+					allData = append(allData, map[string]interface{}{"top": top, "title": title, "reading": reading, "url": url, "state": state})
+				}
+			}
+			index++
+		})
+	})
+	c.Visit(url)
+	return allData
+}
+
 //ProduceData ...
 func ProduceData(s *Spider) {
 	defer wg.Done()
@@ -228,6 +259,8 @@ func ProduceData(s *Spider) {
 			internal.NewMongoDB().OnShuiMuInsert(&hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
 		case hotso.TIANYA:
 			internal.NewMongoDB().OnTianYaInsert(&hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
+		case hotso.V2EX:
+			internal.NewMongoDB().OnV2EXInsert(&hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
 		}
 	} else {
 		fmt.Println("originData nil")

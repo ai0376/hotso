@@ -15,6 +15,7 @@ const (
 	ZHIHU         //知乎
 	SHUIMU        //水木
 	TIANYA        //天涯
+	V2EX          //v2ex
 )
 
 //HotSoType ...
@@ -24,4 +25,5 @@ var HotSoType = map[int]string{
 	ZHIHU:  "ZhiHu",
 	SHUIMU: "ShuiMu",
 	TIANYA: "TianYa",
+	V2EX:   "V2EX",
 }
