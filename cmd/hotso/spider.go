@@ -161,7 +161,7 @@ func (s *Spider) OnShuiMu() []map[string]interface{} {
 		index := 0
 		e.ForEach("ul > li", func(i int, ex *colly.HTMLElement) {
 			if index > 0 {
-				top := index
+				top := strconv.Itoa(index)
 				title := ex.ChildText("li > a")
 				n := strings.Index(title, "(")
 				if n > 0 {
@@ -174,6 +174,33 @@ func (s *Spider) OnShuiMu() []map[string]interface{} {
 				//fmt.Println(top, title, reading, url, state)
 				allData = append(allData, map[string]interface{}{"top": top, "title": title, "reading": reading, "url": url, "state": state})
 			}
+			index++
+		})
+	})
+	c.Visit(url)
+	return allData
+}
+
+//OnTianYa 天涯热帖
+func (s *Spider) OnTianYa() []map[string]interface{} {
+	url := "https://bbs.tianya.cn/m/hotArticle.jsp"
+	domain := "bbs.tianya.cn/m/"
+	var allData []map[string]interface{}
+	c := colly.NewCollector(colly.MaxDepth(1), colly.UserAgent(userAgent))
+	c.OnError(func(r *colly.Response, err error) {
+		fmt.Println("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
+	})
+	c.OnHTML("#j-bbs-hotpost > div.m-box > ul", func(e *colly.HTMLElement) {
+		index := 1
+		e.ForEach("ul > li", func(i int, ex *colly.HTMLElement) {
+			top := strconv.Itoa(index)
+			title := ex.ChildText("li > a > p")
+			reading := ""
+			url := ex.ChildAttr("li > a", "href")
+			url = fmt.Sprintf("%s%s", domain, url)
+			state := "" //ex.ChildText("div > a:nth-child(1)") //板块
+			//fmt.Println(top, title, reading, url, state)
+			allData = append(allData, map[string]interface{}{"top": top, "title": title, "reading": reading, "url": url, "state": state})
 			index++
 		})
 	})
@@ -199,6 +226,8 @@ func ProduceData(s *Spider) {
 			internal.NewMongoDB().OnZhiHuInsert(&hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
 		case hotso.SHUIMU:
 			internal.NewMongoDB().OnShuiMuInsert(&hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
+		case hotso.TIANYA:
+			internal.NewMongoDB().OnTianYaInsert(&hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
 		}
 	} else {
 		fmt.Println("originData nil")

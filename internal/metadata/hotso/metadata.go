@@ -14,6 +14,7 @@ const (
 	BAIDU         //百度
 	ZHIHU         //知乎
 	SHUIMU        //水木
+	TIANYA        //天涯
 )
 
 //HotSoType ...
@@ -22,4 +23,5 @@ var HotSoType = map[int]string{
 	BAIDU:  "BaiDu",
 	ZHIHU:  "ZhiHu",
 	SHUIMU: "ShuiMu",
+	TIANYA: "TianYa",
 }

@@ -106,3 +106,23 @@ func (m *MongoDB) OnShuiMuFindOne() *hotso.HotData {
 	}
 	return &data
 }
+
+//OnTianYaInsert ...
+func (m *MongoDB) OnTianYaInsert(data interface{}) {
+	s := session.Copy()
+	defer s.Close()
+	if err := s.DB("hotso").C("tianya").Insert(data); err != nil {
+		panic(err.Error())
+	}
+}
+
+//OnTianYaFindOne ...
+func (m *MongoDB) OnTianYaFindOne() *hotso.HotData {
+	s := session.Copy()
+	defer s.Close()
+	var data hotso.HotData
+	if err := s.DB("hotso").C("tianya").Find(nil).Sort("-intime").Limit(1).One(&data); err != nil {
+		panic(err.Error())
+	}
+	return &data
+}
