@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/mjrao/hotso.svg?branch=master)](https://travis-ci.org/mjrao/hotso)
 
 ## 介绍
-定时抓取百度和微博热搜数据,并对数据定时进行分词后, 提供数据接口服务
+定时抓取热搜数据,并对数据定时进行分词后, 提供数据接口服务
 
 
 ## 工程信息
@@ -69,31 +69,7 @@
 ./start_service.sh
 `
 
-## 数据接口样例
-
-* 微博热搜10条数据
-    http://host:port/hotso/v1/hotso/weibo/json/10
-
-* 百度热搜10条数据
-    http://host:port/hotso/v1/hotso/baidu/json/10
-
-* 知乎热搜10条数据
-    http://host:port/hotso/v1/hotso/zhihu/json/10
-
-
-* 微博热搜分词后热词10条
-    http://host:port/hotso/v1/hotword/weibo/json/10
-
-* 百度热搜分词后热词10条
-    http://host:port/hotso/v1/hotword/baidu/json/10
-
-如果需要20条数据，将后面10改为20即可
-
-热搜数据最多提供50条
-
-热词最多提供100条
-
-## 样例
+## 数据样例
 
 * [微博热搜 10条](http://ownwiki.cn:8806/hotso/v1/hotso/weibo/json/10)
 
@@ -101,7 +77,6 @@
 
 * [知乎热榜 10条](http://ownwiki.cn:8806/hotso/v1/hotso/zhihu/json/10) 
     
-    由于知乎热搜需要登陆才能获取，目前做法是人工通过浏览器登陆之后保存cookie,并将cookie存储在云盘里，程序通过webdav方式获取保存的cookie，无任何商业用途，仅供学习和上班时间看知乎热搜方便，希望知乎大佬不要封了我的IP和账户
 * [水木10大 10条](http://ownwiki.cn:8806/hotso/v1/hotso/shuimu/json/10)
 
 * [天涯热帖 10条](http://ownwiki.cn:8806/hotso/v1/hotso/tianya/json/10)
