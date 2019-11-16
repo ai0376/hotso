@@ -184,7 +184,7 @@ func (s *Spider) OnShuiMu() []map[string]interface{} {
 //OnTianYa 天涯热帖
 func (s *Spider) OnTianYa() []map[string]interface{} {
 	url := "https://bbs.tianya.cn/m/hotArticle.jsp"
-	domain := "bbs.tianya.cn/m/"
+	domain := "bbs.tianya.cn/"
 	var allData []map[string]interface{}
 	c := colly.NewCollector(colly.MaxDepth(1), colly.UserAgent(userAgent))
 	c.OnError(func(r *colly.Response, err error) {
