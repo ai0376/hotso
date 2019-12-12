@@ -71,19 +71,19 @@
 
 ## 数据样例
 
-* [微博热搜 10条](http://ownwiki.cn:8806/hotso/v1/hotso/weibo/json/10)
+* [微博热搜 10条](http://hotso.top/hotso/v1/hotso/weibo/json/10)
 
-* [百度搜索热点 10条](http://ownwiki.cn:8806/hotso/v1/hotso/baidu/json/10)
+* [百度搜索热点 10条](http://hotso.top/hotso/v1/hotso/baidu/json/10)
 
-* [知乎热榜 10条](http://ownwiki.cn:8806/hotso/v1/hotso/zhihu/json/10) 
+* [知乎热榜 10条](http://hotso.top/hotso/v1/hotso/zhihu/json/10) 
     
-* [水木10大 10条](http://ownwiki.cn:8806/hotso/v1/hotso/shuimu/json/10)
+* [水木10大 10条](http://hotso.top/hotso/v1/hotso/shuimu/json/10)
 
-* [天涯热帖 10条](http://ownwiki.cn:8806/hotso/v1/hotso/tianya/json/10)
+* [天涯热帖 10条](http://hotso.top/hotso/v1/hotso/tianya/json/10)
 
-* [V2EX最热 10条](http://ownwiki.cn:8806/hotso/v1/hotso/v2ex/json/10)
+* [V2EX最热 10条](http://hotso.top/hotso/v1/hotso/v2ex/json/10)
 
-* [微博热搜分词 10条](http://ownwiki.cn:8806/hotso/v1/hotword/weibo/json/10)
+* [微博热搜分词 10条](http://hotso.top/hotso/v1/hotword/weibo/json/10)
 
 ## 声明
 
