@@ -163,9 +163,9 @@ a:hover,a:focus{color:#74777b;}
 
 .copyright {
 position: absolute;
-height: 30px;
+height: 100px;
 text-align: center;
 line-height: 30px;
-width: 100%;
+width: 99%;
 bottom:0px;
 }
