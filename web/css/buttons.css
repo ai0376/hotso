@@ -160,3 +160,12 @@ a:hover,a:focus{color:#74777b;}
 .button_group {
   margin: 16px -2px 0;
 }
+
+.copyright {
+position: absolute;
+height: 30px;
+text-align: center;
+line-height: 50px;
+width: 100%;
+bottom:0px;
+}
