@@ -36,6 +36,17 @@ def load_config_file():
         text = fp.read()
     return json.loads(text)
 
+# 用户字典文件
+def user_dict_file():
+    f = os.path.abspath(__file__)
+    if platform.system() == "Windows":
+        f = f[:f.rfind('\\')]
+        f = f + "\\" + "..\\config\\user_dict.txt"
+    else:  # Linux or Mac
+        f = f[:f.rfind('/')]
+        f = f + "/" + "../config/user_dict.txt"
+    return f
+
 # 创建停用词list  
 def stopwordslist():
     f = os.path.abspath(__file__)
@@ -129,4 +140,6 @@ stopwords = stopwordslist()
 
 #定时任务代码，每天执行一次
 if __name__ == "__main__":
+    jieba.load_userdict(user_dict_file())# 加载字典
+    #print(user_dict_file())
     do_task()
