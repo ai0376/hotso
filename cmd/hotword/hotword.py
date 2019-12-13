@@ -62,7 +62,7 @@ def stopwordslist():
 #取redis key 参数为集合名字
 def get_redis_key(collection):
     tm = time.localtime(time.time())
-    return "hotword:"+collection+":"+str(tm.tm_year)
+    return "hotword:" + str(tm.tm_year) + ":" + collection
 
 #任务处理时间线
 def get_redis_key_intime():

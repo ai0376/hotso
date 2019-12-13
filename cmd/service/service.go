@@ -209,6 +209,49 @@ func GetHotWordData(c *gin.Context) {
 
 }
 
+//GetHotTopData 年度总榜
+func GetHotTopData(c *gin.Context) {
+	cli := internal.RedisCliPool().Get()
+	defer cli.Close()
+	var hottype = ""
+	switch c.Param("hottype") {
+	case "weibo":
+		hottype = "weibo"
+	case "baidu":
+		hottype = "baidu"
+	// case "zhihu":
+	// 	hottype = "zhihu"
+	default:
+		c.JSON(http.StatusOK, gin.H{"code": -1, "message": "no data"})
+	}
+	num, _ := strconv.Atoi(c.Param("num"))
+	key := internal.GetHotTopKey(hottype, time.Now().Year())
+	if num <= 0 || num > 100 {
+		num = 100
+	}
+	var result []map[string]interface{}
+	args := redis.Args{}.Add(key).AddFlat([]string{"0", strconv.Itoa(num - 1), "WITHSCORES"})
+	if reply, err := redis.Values(cli.Do("ZREVRANGE", args...)); err != nil {
+		panic(err.Error())
+	} else {
+		var index = 0
+		for i := 0; i < len(reply); i += 2 {
+			index++
+			result = append(result, map[string]interface{}{"rank": index, "word": string(reply[i].([]byte)), "score": string(reply[i+1].([]byte))})
+		}
+	}
+	switch c.Param("data_type") {
+	case "json":
+		//c.JSON(http.StatusOK, result)
+		ResponIndentJSON(c, http.StatusOK, result)
+	default:
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
+			"message": "data format error",
+		})
+	}
+}
+
 //GetHotType ...
 func GetHotType(c *gin.Context) {
 	num, _ := strconv.Atoi(c.Param("num"))
@@ -249,6 +292,7 @@ func main() {
 	{
 		v1.GET("/hotso/:hottype/:data_type/:num", GetHotType) //  http://ip:port/weibo/json/10   获取微博热搜10条数据，并以json方式返回
 		v1.GET("/hotword/:hottype/:data_type/:num", GetHotWordData)
+		v1.GET("/hottop/:hottype/:data_type/:num", GetHotTopData)
 	}
 	addr := fmt.Sprintf("%s:%d", serviceCfg.IP, serviceCfg.Port)
 	router.Run(addr)
