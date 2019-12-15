@@ -34,11 +34,17 @@ type Redis struct {
 	Auth string `json:"password"`
 }
 
+type HotTop struct {
+	BeginTime       int64 `json:"begin_unix"`
+	DurationTimeSec int64 `json:"duration_sec"`
+}
+
 type Config struct {
 	MongoDB Mongo   `json:"mongodb"`
 	WebDav  WebDav  `json:"webdav"`
 	Service Service `json:"service"`
 	Redis   Redis   `json:"redis"`
+	HotTop  HotTop  `json:"hottop"`
 }
 
 var cfg *Config

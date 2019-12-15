@@ -146,3 +146,14 @@ func (m *MongoDB) OnV2EXFindOne() *hotso.HotData {
 	}
 	return &data
 }
+
+//---------hottop-----------
+//OnLoadData ...
+func (m *MongoDB) OnLoadData(dataType int, begin int64, end int64) *hotso.HotData {
+	s := session.Copy()
+	defer s.Close()
+	// collection := strings.ToLower(hotso.HotSoType[dataType])
+	// if err:= s.DB("hotso").C(collection).Find()
+	var data hotso.HotData
+	return &data
+}
