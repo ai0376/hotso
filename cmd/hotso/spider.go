@@ -140,7 +140,7 @@ func (s *Spider) OnZhiHu() []map[string]interface{} {
 			url := ex.ChildAttr("div.HotItem-content > a ", "href")
 			state := ex.ChildText("div.HotItem-index > div.HotItem-label")
 
-			allData = append(allData, map[string]interface{}{"top": top, "title": title, "reading": reading, "url": url, "state": state})
+			allData = append(allData, map[string]interface{}{"top": top, "title": title, "reading": strconv.Itoa(reading), "url": url, "state": state})
 		})
 	})
 	c.Visit("http://www.zhihu.com/hot")

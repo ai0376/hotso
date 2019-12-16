@@ -219,8 +219,14 @@ func GetHotTopData(c *gin.Context) {
 		hottype = "weibo"
 	case "baidu":
 		hottype = "baidu"
-	// case "zhihu":
-	// 	hottype = "zhihu"
+	case "zhihu":
+		hottype = "zhihu"
+	case "shuimu":
+		hottype = "shuimu"
+	case "tianya":
+		hottype = "tianya"
+	case "v2ex":
+		hottype = "v2ex"
 	default:
 		c.JSON(http.StatusOK, gin.H{"code": -1, "message": "no data"})
 	}
@@ -229,7 +235,8 @@ func GetHotTopData(c *gin.Context) {
 	if num <= 0 || num > 100 {
 		num = 100
 	}
-	var result []map[string]interface{}
+	//var result []map[string]interface{}
+	var array []string
 	args := redis.Args{}.Add(key).AddFlat([]string{"0", strconv.Itoa(num - 1), "WITHSCORES"})
 	if reply, err := redis.Values(cli.Do("ZREVRANGE", args...)); err != nil {
 		panic(err.Error())
@@ -237,7 +244,19 @@ func GetHotTopData(c *gin.Context) {
 		var index = 0
 		for i := 0; i < len(reply); i += 2 {
 			index++
-			result = append(result, map[string]interface{}{"rank": index, "word": string(reply[i].([]byte)), "score": string(reply[i+1].([]byte))})
+			array = append(array, string(reply[i].([]byte)))
+		}
+	}
+	var result []hotso.HotItem
+	if len(array) > 0 {
+		args := redis.Args{}.Add(internal.GetHotDetailKey(hottype, time.Now().Year())).AddFlat(array)
+		if reply, err := redis.Values(cli.Do("HMGET", args...)); err == nil {
+			for i := 0; i < len(reply); i++ {
+				var item hotso.HotItem
+				json.Unmarshal(reply[i].([]byte), &item)
+				item.Top = strconv.Itoa(i + 1)
+				result = append(result, item)
+			}
 		}
 	}
 	switch c.Param("data_type") {
