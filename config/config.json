@@ -13,6 +13,12 @@
         "_duration_sec": "从开始时间+此时间代表查询结束时间, 为 0 代表到当前时间,默认就填0 吧",
         "duration_sec":0 
     },
+    "hottop":{
+        "_begin_unix": "数据处理开始时间unix时间戳",
+        "begin_unix":1567755345,
+        "_duration_sec": "从开始时间+此时间代表查询结束时间, 为 0 代表到当前时间,默认就填0 吧",
+        "duration_sec":0 
+    },
     "webdav":{
         "host":"https://dav.jianguoyun.com/dav/",
         "user":"",
