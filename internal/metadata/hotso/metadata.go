@@ -27,3 +27,12 @@ var HotSoType = map[int]string{
 	TIANYA: "TianYa",
 	V2EX:   "V2EX",
 }
+
+//HotItem ...
+type HotItem struct {
+	Reading string `json:"reading"`
+	State   string `json:"state"`
+	Title   string `json:"title"`
+	Top     string `json:"top"`
+	URL     string `json:"url"`
+}

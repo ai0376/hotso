@@ -43,9 +43,9 @@ func RedisCliPool() *redis.Pool {
 }
 
 const (
-	hotDataKey      = "hotword:%d:%s"      //hotword:2019:weibo
-	hotTopDataKey   = "hottop:%d:%s"       //hottop:2019:weibo
-	hotTopDetailKey = "hotdetail:%d:%s:%s" //hotdetail:2019:weibo:{title_md5}
+	hotDataKey      = "hotword:%d:%s"   //hotword:2019:weibo
+	hotTopDataKey   = "hottop:%d:%s"    //hottop:2019:weibo
+	hotTopDetailKey = "hotdetail:%d:%s" //hotdetail:2019:weibo
 )
 
 //GetHotWordKey ...
@@ -56,4 +56,9 @@ func GetHotWordKey(hotType string, year int) string {
 //GetHotTopKey ...
 func GetHotTopKey(hotType string, year int) string {
 	return fmt.Sprintf(hotTopDataKey, year, hotType)
+}
+
+//GetHotDetailKey ...
+func GetHotDetailKey(hotType string, year int) string {
+	return fmt.Sprintf(hotTopDetailKey, year, hotType)
 }

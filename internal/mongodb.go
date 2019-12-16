@@ -1,9 +1,13 @@
 package internal
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/mjrao/hotso/config"
 	"github.com/mjrao/hotso/internal/metadata/hotso"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 //MongoDB ...
@@ -149,11 +153,13 @@ func (m *MongoDB) OnV2EXFindOne() *hotso.HotData {
 
 //---------hottop-----------
 //OnLoadData ...
-func (m *MongoDB) OnLoadData(dataType int, begin int64, end int64) *hotso.HotData {
+func (m *MongoDB) OnLoadData(dataType int, begin int64, end int64) []hotso.HotData {
 	s := session.Copy()
 	defer s.Close()
-	// collection := strings.ToLower(hotso.HotSoType[dataType])
-	// if err:= s.DB("hotso").C(collection).Find()
-	var data hotso.HotData
-	return &data
+	collection := strings.ToLower(hotso.HotSoType[dataType])
+	var datas []hotso.HotData
+	if err := s.DB("hotso").C(collection).Find(bson.M{"intime": bson.M{"$gt": begin, "$lte": end}}).All(&datas); err != nil {
+		fmt.Println(err.Error())
+	}
+	return datas
 }
