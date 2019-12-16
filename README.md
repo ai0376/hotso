@@ -71,7 +71,7 @@
 
 ## 数据样例
 
-[**hotso.top**](hotso.top)
+[**hotso.top**](http://hotso.top)
 
 * [微博热搜 10条](http://hotso.top/hotso/v1/hotso/weibo/json/10)
 
