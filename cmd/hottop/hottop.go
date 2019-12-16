@@ -77,9 +77,12 @@ func parseData(t int, arr interface{}) {
 	}
 	var iRead = 0
 	for _, val := range hotItem {
+		if val.State == "荐" {
+			continue
+		}
 		if val.Reading == "" {
 			top, _ := strconv.Atoi(val.Top)
-			iRead = (10000 - top) * 100 //模拟出一个值
+			iRead = (100 - top) * 100 //模拟出一个值
 		} else {
 			top, _ := strconv.Atoi(val.Reading)
 			iRead = top
@@ -91,10 +94,12 @@ func parseData(t int, arr interface{}) {
 			}
 			if _, err := cli.Do("HMSET", redis.Args{}.Add(internal.GetHotDetailKey(strings.ToLower(hotso.HotSoType[t]), time.Now().Year())).AddFlat(mFields)...); err == nil {
 				score := fmt.Sprintf("%.3f", float32(iRead)/10000.0)
-				cli.Do("ZINCRBY", internal.GetHotTopKey(strings.ToLower(hotso.HotSoType[t]), time.Now().Year()), score, titleMd5)
+				if _, err := cli.Do("ZINCRBY", internal.GetHotTopKey(strings.ToLower(hotso.HotSoType[t]), time.Now().Year()), score, titleMd5); err != nil {
+					fmt.Println(err.Error())
+				}
 			}
 		}
-		return
+		//return
 	}
 }
 
@@ -104,7 +109,6 @@ func produceData(t int) {
 		datas := internal.NewMongoDB().OnLoadData(t, getHotTimeLine(strings.ToLower(val)), getEndTime(val))
 		for _, v := range datas {
 			parseData(t, v.Data)
-			return
 		}
 		setHotTimeLine(getEndTime(val), strings.ToLower(val))
 	}
