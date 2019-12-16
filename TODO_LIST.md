@@ -58,3 +58,8 @@ db.weibo.find({"data.state":"沸"},{"data":{$elemMatch:{"state":"沸"}}, "intime
 ```
 db.weibo.find({"data.title":{"$regex":"别墅"}},{"data":{$elemMatch:{"title":{"$regex":"别墅"}}}, "intime":1}).sort({"intime":-1})
 ```
+
+修改reading字段属性 int->string
+```
+db.zhihu.find({}).forEach(function(x){x.data.forEach(function(arr){arr.reading = String(arr.reading); db.zhihu.save(x)})});
+```
