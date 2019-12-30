@@ -181,7 +181,8 @@ func GetHotWordData(c *gin.Context) {
 
 	// }
 	num, _ := strconv.Atoi(c.Param("num"))
-	key := internal.GetHotWordKey(hottype, time.Now().Year())
+	year, _ := strconv.Atoi(c.Param("year"))
+	key := internal.GetHotWordKey(hottype, year)
 	if num <= 0 || num > 100 {
 		num = 100
 	}
@@ -196,17 +197,17 @@ func GetHotWordData(c *gin.Context) {
 			result = append(result, map[string]interface{}{"rank": index, "word": string(reply[i].([]byte)), "score": string(reply[i+1].([]byte))})
 		}
 	}
-	switch c.Param("data_type") {
-	case "json":
-		//c.JSON(http.StatusOK, result)
-		ResponIndentJSON(c, http.StatusOK, result)
-	default:
-		c.JSON(http.StatusOK, gin.H{
-			"code":    -1,
-			"message": "data format error",
-		})
-	}
-
+	// switch c.Param("data_type") {
+	// case "json":
+	// 	//c.JSON(http.StatusOK, result)
+	// 	ResponIndentJSON(c, http.StatusOK, result)
+	// default:
+	// 	c.JSON(http.StatusOK, gin.H{
+	// 		"code":    -1,
+	// 		"message": "data format error",
+	// 	})
+	// }
+	ResponIndentJSON(c, http.StatusOK, result)
 }
 
 //GetHotTopData 年度总榜
@@ -231,7 +232,8 @@ func GetHotTopData(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"code": -1, "message": "no data"})
 	}
 	num, _ := strconv.Atoi(c.Param("num"))
-	key := internal.GetHotTopKey(hottype, time.Now().Year())
+	year, _ := strconv.Atoi(c.Param("year"))
+	key := internal.GetHotTopKey(hottype, year)
 	if num <= 0 || num > 100 {
 		num = 100
 	}
@@ -290,18 +292,19 @@ func GetHotType(c *gin.Context) {
 		data = GetV2EXData(num)
 	default:
 	}
-	switch c.Param("data_type") {
-	case "json":
-		//c.JSON(http.StatusOK, data)
-		ResponIndentJSON(c, http.StatusOK, data)
-	// case "protobuf":
-	default:
-		c.JSON(http.StatusOK, gin.H{
-			"hottype": c.Param("hottype"),
-			"type":    c.Param("data_type"),
-			"num":     c.Param("num"),
-		})
-	}
+	// switch c.Param("data_type") {
+	// case "json":
+	// 	//c.JSON(http.StatusOK, data)
+	// 	ResponIndentJSON(c, http.StatusOK, data)
+	// // case "protobuf":
+	// default:
+	// 	c.JSON(http.StatusOK, gin.H{
+	// 		"hottype": c.Param("hottype"),
+	// 		"type":    c.Param("data_type"),
+	// 		"num":     c.Param("num"),
+	// 	})
+	// }
+	ResponIndentJSON(c, http.StatusOK, data)
 }
 
 func main() {
@@ -309,9 +312,9 @@ func main() {
 	router := gin.Default()
 	v1 := router.Group("hotso/v1")
 	{
-		v1.GET("/hotso/:hottype/:data_type/:num", GetHotType) //  http://ip:port/weibo/json/10   获取微博热搜10条数据，并以json方式返回
-		v1.GET("/hotword/:hottype/:data_type/:num", GetHotWordData)
-		v1.GET("/hottop/:hottype/:data_type/:num", GetHotTopData)
+		v1.GET("/hotso/:hottype/:num", GetHotType) //  http://ip:port/weibo/json/10   获取微博热搜10条数据，并以json方式返回
+		v1.GET("/hotword/:hottype/:year/:num", GetHotWordData)
+		v1.GET("/hottop/:hottype/:year/:num", GetHotTopData)
 	}
 	addr := fmt.Sprintf("%s:%d", serviceCfg.IP, serviceCfg.Port)
 	router.Run(addr)
