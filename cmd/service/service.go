@@ -261,16 +261,17 @@ func GetHotTopData(c *gin.Context) {
 			}
 		}
 	}
-	switch c.Param("data_type") {
-	case "json":
-		//c.JSON(http.StatusOK, result)
-		ResponIndentJSON(c, http.StatusOK, result)
-	default:
-		c.JSON(http.StatusOK, gin.H{
-			"code":    -1,
-			"message": "data format error",
-		})
-	}
+	// switch c.Param("data_type") {
+	// case "json":
+	// 	//c.JSON(http.StatusOK, result)
+	// 	ResponIndentJSON(c, http.StatusOK, result)
+	// default:
+	// 	c.JSON(http.StatusOK, gin.H{
+	// 		"code":    -1,
+	// 		"message": "data format error",
+	// 	})
+	// }
+	ResponIndentJSON(c, http.StatusOK, result)
 }
 
 //GetHotType ...
