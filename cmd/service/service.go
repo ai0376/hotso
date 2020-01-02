@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gomodule/redigo/redis"
@@ -251,7 +250,7 @@ func GetHotTopData(c *gin.Context) {
 	}
 	var result []hotso.HotItem
 	if len(array) > 0 {
-		args := redis.Args{}.Add(internal.GetHotDetailKey(hottype, time.Now().Year())).AddFlat(array)
+		args := redis.Args{}.Add(internal.GetHotDetailKey(hottype, year)).AddFlat(array)
 		if reply, err := redis.Values(cli.Do("HMGET", args...)); err == nil {
 			for i := 0; i < len(reply); i++ {
 				var item hotso.HotItem
