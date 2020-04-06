@@ -163,3 +163,15 @@ func (m *MongoDB) OnLoadData(dataType int, begin int64, end int64) []hotso.HotDa
 	}
 	return datas
 }
+
+//----query day data
+func (m *MongoDB) OnQueryData(dataType int, start int64, end int64) *hotso.HotData {
+	s := session.Copy()
+	defer s.Close()
+	collection := strings.ToLower(hotso.HotSoType[dataType])
+	var data hotso.HotData
+	if err := s.DB("hotso").C(collection).Find(bson.M{"intime": bson.M{"$gt": start, "$lte": end}}).Sort("-intime").Limit(1).One(&data); err != nil {
+		fmt.Println(err.Error())
+	}
+	return &data
+}

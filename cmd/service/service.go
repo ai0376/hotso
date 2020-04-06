@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gomodule/redigo/redis"
@@ -14,6 +15,22 @@ import (
 	"github.com/mjrao/hotso/internal/metadata/hotso"
 	"gopkg.in/mgo.v2/bson"
 )
+
+//timeOfDay day is "2006-01-02"
+func timeOfDay(day string) (int64, int64) {
+
+	//time.Parse("2006-01-02 15:04:05", "2018-12-03 11:02:12") 记忆方式
+	timeStrBegin := day + " 00:00:01"
+	timeStrEnd := day + " 23:59:59"
+
+	var err1, err2 error
+	t1, err1 := time.Parse("2006-01-02 15:04:05", timeStrBegin)
+	t2, err2 := time.Parse("2006-01-02 15:04:05", timeStrEnd)
+	if err1 != nil || err2 != nil {
+		return -1, -1
+	}
+	return t1.Unix() - 8*3600, t2.Unix() - 8*3600
+}
 
 //ResponIndentJSON ...
 func ResponIndentJSON(c *gin.Context, code int, obj interface{}) error {
@@ -307,6 +324,70 @@ func GetHotType(c *gin.Context) {
 	ResponIndentJSON(c, http.StatusOK, data)
 }
 
+//QueryDataOfDay ...
+func QueryDataOfDay(dataType int, num int, day string) *hotso.HotData {
+	start, end := timeOfDay(day)
+	if start < 0 || end < 0 {
+		return nil
+	}
+	if _, ok := hotso.HotSoType[dataType]; !ok {
+		return nil
+	}
+	data := internal.NewMongoDB().OnQueryData(dataType, start, end)
+	var hotdata hotso.HotData
+	if bytes, err := bson.MarshalJSON(data); err != nil {
+		panic(err.Error())
+	} else {
+		bson.UnmarshalJSON(bytes, &hotdata)
+	}
+	fmt.Println(hotdata)
+	var resultData []map[string]interface{}
+	index := 0
+	for _, v := range hotdata.Data.([]interface{}) {
+		index++
+		if num != 0 && index > num {
+			break
+		}
+		resultData = append(resultData, v.(map[string]interface{}))
+	}
+	return &hotso.HotData{Type: hotdata.Type, Name: hotdata.Name, InTime: hotdata.InTime, Data: resultData}
+}
+
+//QueryHotSoOfDay ...
+func QueryHotSoOfDay(c *gin.Context) {
+	day := c.Param("day") // "2016-01-02"
+	num, _ := strconv.Atoi(c.Param("num"))
+	var data *hotso.HotData
+	switch c.Param("hottype") {
+	case "weibo":
+		data = QueryDataOfDay(hotso.WEIBO, num, day)
+	case "baidu":
+		data = QueryDataOfDay(hotso.BAIDU, num, day)
+	case "zhihu":
+		data = QueryDataOfDay(hotso.ZHIHU, num, day)
+	case "shuimu":
+		data = QueryDataOfDay(hotso.SHUIMU, num, day)
+	case "tianya":
+		data = QueryDataOfDay(hotso.TIANYA, num, day)
+	case "v2ex":
+		data = QueryDataOfDay(hotso.V2EX, num, day)
+	default:
+	}
+	// switch c.Param("data_type") {
+	// case "json":
+	// 	//c.JSON(http.StatusOK, data)
+	// 	ResponIndentJSON(c, http.StatusOK, data)
+	// // case "protobuf":
+	// default:
+	// 	c.JSON(http.StatusOK, gin.H{
+	// 		"hottype": c.Param("hottype"),
+	// 		"type":    c.Param("data_type"),
+	// 		"num":     c.Param("num"),
+	// 	})
+	// }
+	ResponIndentJSON(c, http.StatusOK, data)
+}
+
 func main() {
 	serviceCfg := config.GetConfig().Service
 	router := gin.Default()
@@ -315,6 +396,7 @@ func main() {
 		v1.GET("/hotso/:hottype/:num", GetHotType) //  http://ip:port/weibo/json/10   获取微博热搜10条数据，并以json方式返回
 		v1.GET("/hotword/:hottype/:year/:num", GetHotWordData)
 		v1.GET("/hottop/:hottype/:year/:num", GetHotTopData)
+		v1.GET("/query/:hottype/:day/:num", QueryHotSoOfDay)
 	}
 	addr := fmt.Sprintf("%s:%d", serviceCfg.IP, serviceCfg.Port)
 	router.Run(addr)

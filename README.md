@@ -87,9 +87,26 @@
 
 * [微博热搜分词 10条](http://hotso.top/hotso/v1/hotword/weibo/2019/10)
 
+* [查询微博某天热搜数据](http://hotso.top/hotso/v1/query/weibo/2019-12-01/10)
+
+* [查询知乎某天热搜数据](http://hotso.top/hotso/v1/query/zhihu/2019-12-01/10)
+
+* 查询历史某天热搜数据接口
+    `http://hotso.top/hotso/v1/query/:type/:day/:num`
+
+    可变字段取值
+
+    :type   weibo/baidu/zhihu/v2ex/shuimu/tianya
+
+    :day    YYYY-MM-DD
+
+    :num    获取数据条数
+
 ## 声明
 
 抓取数据仅供个人学习，以及本人在工作时间关注实时热点提供方便，无任何商业用途，如有侵权，联系删除
+
+所有数据均来自第三方，禁止将数据用于任何商业用途，使用此数据须标明数据源（譬如 微博，知乎等）
 
 ## 反馈
 
