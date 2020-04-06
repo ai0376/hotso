@@ -51,114 +51,9 @@ func ResponIndentJSON(c *gin.Context, code int, obj interface{}) error {
 	return err
 }
 
-//GetWeiBoData ...
-func GetWeiBoData(num int) *hotso.HotData {
-	data := internal.NewMongoDB().OnWeiBoFindOne()
-	var hotdata hotso.HotData
-	if bytes, err := bson.MarshalJSON(data); err != nil {
-		panic(err.Error())
-	} else {
-		bson.UnmarshalJSON(bytes, &hotdata)
-	}
-	var resultData []map[string]interface{}
-	index := 0
-	for _, v := range hotdata.Data.([]interface{}) {
-		index++
-		if num != 0 && index > num {
-			break
-		}
-		resultData = append(resultData, v.(map[string]interface{}))
-	}
-	return &hotso.HotData{Type: hotdata.Type, Name: hotdata.Name, InTime: hotdata.InTime, Data: resultData}
-}
-
-//GetBaiDuData ...
-func GetBaiDuData(num int) *hotso.HotData {
-	data := internal.NewMongoDB().OnBaiDuFindOne()
-	var hotdata hotso.HotData
-	if bytes, err := bson.MarshalJSON(data); err != nil {
-		panic(err.Error())
-	} else {
-		bson.UnmarshalJSON(bytes, &hotdata)
-	}
-	var resultData []map[string]interface{}
-	index := 0
-	for _, v := range hotdata.Data.([]interface{}) {
-		index++
-		if num != 0 && index > num {
-			break
-		}
-		resultData = append(resultData, v.(map[string]interface{}))
-	}
-	return &hotso.HotData{Type: hotdata.Type, Name: hotdata.Name, InTime: hotdata.InTime, Data: resultData}
-}
-
-//GetZhiHuData ...
-func GetZhiHuData(num int) *hotso.HotData {
-	data := internal.NewMongoDB().OnZhiHuFindOne()
-	var hotdata hotso.HotData
-	if bytes, err := bson.MarshalJSON(data); err != nil {
-		panic(err.Error())
-	} else {
-		bson.UnmarshalJSON(bytes, &hotdata)
-	}
-	var resultData []map[string]interface{}
-	index := 0
-	for _, v := range hotdata.Data.([]interface{}) {
-		index++
-		if num != 0 && index > num {
-			break
-		}
-		resultData = append(resultData, v.(map[string]interface{}))
-	}
-	return &hotso.HotData{Type: hotdata.Type, Name: hotdata.Name, InTime: hotdata.InTime, Data: resultData}
-}
-
-//GetShuiMuData ...
-func GetShuiMuData(num int) *hotso.HotData {
-	data := internal.NewMongoDB().OnShuiMuFindOne()
-	var hotdata hotso.HotData
-	if bytes, err := bson.MarshalJSON(data); err != nil {
-		panic(err.Error())
-	} else {
-		bson.UnmarshalJSON(bytes, &hotdata)
-	}
-	var resultData []map[string]interface{}
-	index := 0
-	for _, v := range hotdata.Data.([]interface{}) {
-		index++
-		if num != 0 && index > num {
-			break
-		}
-		resultData = append(resultData, v.(map[string]interface{}))
-	}
-	return &hotso.HotData{Type: hotdata.Type, Name: hotdata.Name, InTime: hotdata.InTime, Data: resultData}
-}
-
-//GetTianYaData ...
-func GetTianYaData(num int) *hotso.HotData {
-	data := internal.NewMongoDB().OnTianYaFindOne()
-	var hotdata hotso.HotData
-	if bytes, err := bson.MarshalJSON(data); err != nil {
-		panic(err.Error())
-	} else {
-		bson.UnmarshalJSON(bytes, &hotdata)
-	}
-	var resultData []map[string]interface{}
-	index := 0
-	for _, v := range hotdata.Data.([]interface{}) {
-		index++
-		if num != 0 && index > num {
-			break
-		}
-		resultData = append(resultData, v.(map[string]interface{}))
-	}
-	return &hotso.HotData{Type: hotdata.Type, Name: hotdata.Name, InTime: hotdata.InTime, Data: resultData}
-}
-
-//GetV2EXData ...
-func GetV2EXData(num int) *hotso.HotData {
-	data := internal.NewMongoDB().OnV2EXFindOne()
+//GetDataByType ...
+func GetDataByType(dataType int, num int) *hotso.HotData {
+	data := internal.NewMongoDB().OnFindOneDataByType(dataType)
 	var hotdata hotso.HotData
 	if bytes, err := bson.MarshalJSON(data); err != nil {
 		panic(err.Error())
@@ -296,17 +191,17 @@ func GetHotType(c *gin.Context) {
 	var data *hotso.HotData
 	switch c.Param("hottype") {
 	case "weibo":
-		data = GetWeiBoData(num)
+		data = GetDataByType(hotso.WEIBO, num)
 	case "baidu":
-		data = GetBaiDuData(num)
+		data = GetDataByType(hotso.BAIDU, num)
 	case "zhihu":
-		data = GetZhiHuData(num)
+		data = GetDataByType(hotso.ZHIHU, num)
 	case "shuimu":
-		data = GetShuiMuData(num)
+		data = GetDataByType(hotso.SHUIMU, num)
 	case "tianya":
-		data = GetTianYaData(num)
+		data = GetDataByType(hotso.TIANYA, num)
 	case "v2ex":
-		data = GetV2EXData(num)
+		data = GetDataByType(hotso.V2EX, num)
 	default:
 	}
 	// switch c.Param("data_type") {

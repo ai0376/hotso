@@ -248,19 +248,8 @@ func ProduceData(s *Spider) {
 	originData := methodFunc[0].Interface().([]map[string]interface{}) //数据
 	now := time.Now().Unix()
 	if len(originData) > 0 {
-		switch s.Type {
-		case hotso.WEIBO:
-			internal.NewMongoDB().OnWeiBoInsert(&hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
-		case hotso.BAIDU:
-			internal.NewMongoDB().OnBaiDuInsert(&hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
-		case hotso.ZHIHU:
-			internal.NewMongoDB().OnZhiHuInsert(&hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
-		case hotso.SHUIMU:
-			internal.NewMongoDB().OnShuiMuInsert(&hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
-		case hotso.TIANYA:
-			internal.NewMongoDB().OnTianYaInsert(&hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
-		case hotso.V2EX:
-			internal.NewMongoDB().OnV2EXInsert(&hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
+		if _, ok := hotso.HotSoType[s.Type]; ok {
+			internal.NewMongoDB().OnInsertDataByType(s.Type, &hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
 		}
 	} else {
 		fmt.Println("originData nil")
