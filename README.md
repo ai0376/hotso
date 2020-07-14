@@ -1,6 +1,8 @@
 # hotso
 
-[![Build Status](https://travis-ci.org/mjrao/hotso.svg?branch=master)](https://travis-ci.org/mjrao/hotso)
+[![Build Status](https://travis-ci.org/ai0376/hotso.svg?branch=master)](https://travis-ci.org/ai0376/hotso)
+
+Demo site:  [**hotso.top**](http://hotso.top)
 
 ## 介绍
 定时抓取热搜数据,并对数据定时进行分词后, 提供数据接口服务
