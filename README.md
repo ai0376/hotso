@@ -7,6 +7,15 @@ Demo site:  [**hotso.top**](http://hotso.top)
 ## 介绍
 定时抓取热搜数据,并对数据定时进行分词后, 提供数据接口服务
 
+## 依赖存储服务
+
+* redis
+
+    存储分词以及年度榜单数据
+
+* mongodb
+
+    存储站点抓取的资讯信息
 
 ## 工程信息
 
@@ -17,6 +26,14 @@ Demo site:  [**hotso.top**](http://hotso.top)
     cd cmd/hotso
     go build
     ````
+* cmd/hottop
+
+    hottop 进程每周从mongodb 中取得数据 排序到redis中，得出年度榜单
+    ```
+    cd cmd/hottop
+    go build
+    ````
+
 * cmd/hotword
 
     hotword.py 脚本将mongodb 中的热搜数据定时分词到redis中
@@ -41,10 +58,13 @@ Demo site:  [**hotso.top**](http://hotso.top)
     go build
     ```
 
-
 * config/config.json 
 
     config.json  是所有进程的配置文件
+
+* web/*
+
+    一个简单的index.html页面，部署在nginx的document root 目录（粗糙的前端展示）
 
 
 ## 进程部署
@@ -54,13 +74,11 @@ Demo site:  [**hotso.top**](http://hotso.top)
 `crontab -e`
 
 ```
-0 8-22/1 * * * /opt/hotso/app/hotso
-
 0 0 * * * /usr/local/python3/bin/python3 /opt/hotso/hotword/hotword.py
-
-0 1 * * 1 /opt/hotso/mongobackup/mongobackup.sh
-
+0 8-22/1 * * * /opt/hotso/app/hotso
+0 2 * * 1 /opt/hotso/hottop/hottop
 0 3 * * 1 /opt/hotso/webdavcli/webdavcli
+0 1 * * 1 /opt/hotso/mongobackup/mongobackup.sh
 ```
 
 `service crond reload`
