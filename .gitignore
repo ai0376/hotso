@@ -1,2 +1,8 @@
 *.exe
 cmd/config/
+
+# Binaries built from cmd/*
+/hotso
+/service
+/hottop
+/webdavcli

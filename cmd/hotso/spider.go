@@ -93,19 +93,22 @@ func (s *Spider) OnZhiHu() []map[string]interface{} {
 	var success = true
 
 	var zhihu ZhiHuOnline
-	if webdavCli, err := cloud.Dial(config.GetConfig().WebDav.Host, config.GetConfig().WebDav.User, config.GetConfig().WebDav.Password); err != nil {
-		fmt.Println("zhihu webdav dial error")
+	webdavCfg := config.GetConfig().WebDav
+	if webdavCli, err := cloud.Dial(webdavCfg.Host, webdavCfg.User, webdavCfg.Password); err != nil {
+		fmt.Println("zhihu webdav dial error:", err)
 		success = false
 	} else {
-		remoteDir := strings.Replace(config.GetConfig().WebDav.RemoteDir, "\\", "/", -1)
-		if remoteDir[len(remoteDir)-1:] != "/" {
+		remoteDir := strings.Replace(webdavCfg.RemoteDir, "\\", "/", -1)
+		if remoteDir != "" && !strings.HasSuffix(remoteDir, "/") {
 			remoteDir = remoteDir + "/"
 		}
-		if body, err := webdavCli.Download(remoteDir + "zhihu.json"); err != nil {
-			fmt.Println("zhihu webdav download error")
+		body, err := webdavCli.Download(remoteDir + "zhihu.json")
+		if err != nil {
+			fmt.Println("zhihu webdav download error:", err)
 			success = false
-		} else {
-			json.Unmarshal(body, &zhihu)
+		} else if err := json.Unmarshal(body, &zhihu); err != nil {
+			fmt.Println("zhihu json unmarshal error:", err)
+			success = false
 		}
 	}
 	if success != true {
@@ -242,15 +245,25 @@ func (s *Spider) OnV2EX() []map[string]interface{} {
 //ProduceData ...
 func ProduceData(s *Spider) {
 	defer wg.Done()
-	reflectValue := reflect.ValueOf(s)
-	methodValue := reflectValue.MethodByName("On" + hotso.HotSoType[s.Type])
+	methodName := "On" + hotso.HotSoType[s.Type]
+	methodValue := reflect.ValueOf(s).MethodByName(methodName)
+	if !methodValue.IsValid() {
+		fmt.Printf("method %s not found\n", methodName)
+		return
+	}
 	methodFunc := methodValue.Call(nil)
-	originData := methodFunc[0].Interface().([]map[string]interface{}) //数据
+	if len(methodFunc) == 0 {
+		fmt.Printf("method %s returned no data\n", methodName)
+		return
+	}
+	originData, ok := methodFunc[0].Interface().([]map[string]interface{})
+	if !ok {
+		fmt.Printf("method %s returned invalid data type\n", methodName)
+		return
+	}
 	now := time.Now().Unix()
 	if len(originData) > 0 {
-		if _, ok := hotso.HotSoType[s.Type]; ok {
-			internal.NewMongoDB().OnInsertDataByType(s.Type, &hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
-		}
+		internal.NewMongoDB().OnInsertDataByType(s.Type, &hotso.HotData{Type: s.Type, Name: hotso.HotSoType[s.Type], InTime: now, Data: originData})
 	} else {
 		fmt.Println("originData nil")
 	}
@@ -270,7 +283,7 @@ func main() {
 		}
 	} else {
 		wg.Add(len(hotso.HotSoType))
-		for k, _ := range hotso.HotSoType {
+		for k := range hotso.HotSoType {
 			s := &Spider{Type: k}
 			go ProduceData(s)
 		}

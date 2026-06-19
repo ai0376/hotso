@@ -18,6 +18,17 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+const getTimelineLua = `
+local key = KEYS[1]
+local begin = ARGV[1]
+local timeline = redis.call('GET', key)
+if not timeline then
+    redis.call('SET', key, begin)
+    timeline = begin
+end
+return timeline
+`
+
 func nowTime() int64 {
 	return time.Now().Unix()
 }
@@ -45,72 +56,88 @@ func getHotTimeLine(t string) int64 {
 	cli := internal.RedisCliPool().Get()
 	defer cli.Close()
 	begin := getBeginTime()
-	if timeline, err := redis.Int64(cli.Do("GET", redisHotTopTimeLineKey(t))); err != nil {
-		cli.Do("SET", redisHotTopTimeLineKey(t), begin)
-		timeline = begin
-	} else {
-		begin = timeline
+	timeline, err := redis.Int64(cli.Do("EVAL", getTimelineLua, 1, redisHotTopTimeLineKey(t), begin))
+	if err != nil {
+		fmt.Printf("get timeline error: %v\n", err)
+		return begin
 	}
-	return begin
+	return timeline
 }
 
 func setHotTimeLine(newBeginTime int64, t string) {
 	cli := internal.RedisCliPool().Get()
 	defer cli.Close()
 	if _, err := cli.Do("SET", redisHotTopTimeLineKey(t), newBeginTime); err != nil {
-		panic(err)
+		fmt.Printf("set timeline error: %v\n", err)
 	}
 }
 
-func parseData(t int, arr interface{}) {
+func parseData(t int, arr interface{}, year int) error {
 	v := reflect.ValueOf(arr)
 	if v.Kind() != reflect.Slice {
-		panic("arr not slice")
+		return fmt.Errorf("arr not slice")
 	}
 	cli := internal.RedisCliPool().Get()
 	defer cli.Close()
 	var hotItem []hotso.HotItem
-	if bytes, err := bson.MarshalJSON(arr); err != nil {
-		panic(err.Error())
-	} else {
-		bson.UnmarshalJSON(bytes, &hotItem)
+	bytes, err := bson.MarshalJSON(arr)
+	if err != nil {
+		return err
 	}
-	var iRead = 0
+	if err := bson.UnmarshalJSON(bytes, &hotItem); err != nil {
+		return err
+	}
+
+	hotType := strings.ToLower(hotso.HotSoType[t])
+	detailKey := internal.GetHotDetailKey(hotType, year)
+	topKey := internal.GetHotTopKey(hotType, year)
+
 	for _, val := range hotItem {
 		if val.State == "荐" {
 			continue
 		}
+		var iRead int
 		if val.Reading == "" {
-			top, _ := strconv.Atoi(val.Top)
-			iRead = (100 - top) * 100 //模拟出一个值
+			top, err := strconv.Atoi(val.Top)
+			if err != nil {
+				continue
+			}
+			iRead = (100 - top) * 100
 		} else {
-			top, _ := strconv.Atoi(val.Reading)
-			iRead = top
+			reading, err := strconv.Atoi(val.Reading)
+			if err != nil {
+				continue
+			}
+			iRead = reading
 		}
 		titleMd5 := common.MD5(val.Title)
-		if b, err := json.Marshal(val); err == nil {
-			mFields := map[string]string{
-				titleMd5: string(b),
-			}
-			if _, err := cli.Do("HMSET", redis.Args{}.Add(internal.GetHotDetailKey(strings.ToLower(hotso.HotSoType[t]), time.Now().Year())).AddFlat(mFields)...); err == nil {
-				score := fmt.Sprintf("%.3f", float32(iRead)/10000.0)
-				if _, err := cli.Do("ZINCRBY", internal.GetHotTopKey(strings.ToLower(hotso.HotSoType[t]), time.Now().Year()), score, titleMd5); err != nil {
-					fmt.Println(err.Error())
-				}
+		b, err := json.Marshal(val)
+		if err != nil {
+			continue
+		}
+		mFields := map[string]string{titleMd5: string(b)}
+		if _, err := cli.Do("HMSET", redis.Args{}.Add(detailKey).AddFlat(mFields)...); err == nil {
+			score := fmt.Sprintf("%.3f", float32(iRead)/10000.0)
+			if _, err := cli.Do("ZINCRBY", topKey, score, titleMd5); err != nil {
+				fmt.Printf("zincrby error: %v\n", err)
 			}
 		}
-		//return
 	}
+	return nil
 }
 
 func produceData(t int) {
 	defer wg.Done()
 	if val, ok := hotso.HotSoType[t]; ok {
-		datas := internal.NewMongoDB().OnLoadData(t, getHotTimeLine(strings.ToLower(val)), getEndTime(val))
+		year := time.Now().Year()
+		hotType := strings.ToLower(val)
+		datas := internal.NewMongoDB().OnLoadData(t, getHotTimeLine(hotType), getEndTime(hotType))
 		for _, v := range datas {
-			parseData(t, v.Data)
+			if err := parseData(t, v.Data, year); err != nil {
+				fmt.Printf("parse data error: %v\n", err)
+			}
 		}
-		setHotTimeLine(getEndTime(val), strings.ToLower(val))
+		setHotTimeLine(getEndTime(hotType), hotType)
 	}
 }
 
@@ -129,7 +156,7 @@ func main() {
 		}
 	} else {
 		wg.Add(len(hotso.HotSoType))
-		for k, _ := range hotso.HotSoType {
+		for k := range hotso.HotSoType {
 			go produceData(k)
 		}
 	}

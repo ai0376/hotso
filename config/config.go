@@ -2,11 +2,11 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"runtime"
-	"strings"
+	"sync"
 )
 
 //Mongo config
@@ -47,41 +47,52 @@ type Config struct {
 	HotTop  HotTop  `json:"hottop"`
 }
 
-var cfg *Config
+var (
+	cfg     *Config
+	loadErr error
+	once    sync.Once
+)
 
-var configFile = "../config/config.json"
+const defaultConfigFile = "../config/config.json"
 
-func getCurrentDirectory() string {
+func getCfgFile() string {
+	if envPath := os.Getenv("HOTSO_CONFIG_PATH"); envPath != "" {
+		return envPath
+	}
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		return ""
+	}
+	return filepath.Join(dir, defaultConfigFile)
+}
+
+//LoadConfig loads config and returns error instead of panic
+func LoadConfig() (*Config, error) {
+	once.Do(func() {
+		cfg = &Config{}
+		path := getCfgFile()
+		if path == "" {
+			loadErr = fmt.Errorf("failed to determine config path")
+			return
+		}
+		data, err := ioutil.ReadFile(path)
+		if err != nil {
+			loadErr = err
+			return
+		}
+		loadErr = json.Unmarshal(data, cfg)
+	})
+	if loadErr != nil {
+		return nil, loadErr
+	}
+	return cfg, nil
+}
+
+//GetConfig get config
+func GetConfig() *Config {
+	c, err := LoadConfig()
 	if err != nil {
 		panic(err.Error())
 	}
-	return dir
-}
-
-func getCfgFile() string {
-	curPath := getCurrentDirectory()
-	switch runtime.GOOS {
-	case "windows":
-		configFile = strings.Replace(configFile, "/", "\\", -1)
-		curPath = curPath + "\\"
-	default:
-		curPath = curPath + "/"
-	}
-	return curPath + configFile
-}
-
-//GetConfig get mongo config
-func GetConfig() *Config {
-	if cfg == nil {
-		cfg = &Config{}
-		if data, err := ioutil.ReadFile(getCfgFile()); err != nil {
-			panic(err.Error())
-		} else {
-			if err := json.Unmarshal(data, cfg); err != nil {
-				panic(err.Error())
-			}
-		}
-	}
-	return cfg
+	return c
 }

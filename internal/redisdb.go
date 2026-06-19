@@ -3,6 +3,7 @@ package internal
 import (
 	"fmt"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/gomodule/redigo/redis"
@@ -15,7 +16,10 @@ useage:
 RedisCliPool()
 
 */
-var cliPool *redis.Pool
+var (
+	cliPool  *redis.Pool
+	poolOnce sync.Once
+)
 
 //NewRedisCliPool ...
 func NewRedisCliPool(maxIdle, maxActive, idleTimeOut int, host string, port int) *redis.Pool {
@@ -35,10 +39,10 @@ func NewRedisCliPool(maxIdle, maxActive, idleTimeOut int, host string, port int)
 
 //RedisCliPool ...
 func RedisCliPool() *redis.Pool {
-	if cliPool != nil {
-		return cliPool
-	}
-	cliPool = NewRedisCliPool(10, 100, 20, config.GetConfig().Redis.Host, config.GetConfig().Redis.Port)
+	poolOnce.Do(func() {
+		cfg := config.GetConfig().Redis
+		cliPool = NewRedisCliPool(10, 100, 20, cfg.Host, cfg.Port)
+	})
 	return cliPool
 }
 

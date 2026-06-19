@@ -7,7 +7,12 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"time"
 )
+
+var httpClient = &http.Client{
+	Timeout: 30 * time.Second,
+}
 
 // A client represents a client connection to a {own|next}cloud
 type Client struct {
@@ -63,9 +68,6 @@ func (c *Client) Upload(src []byte, dest string) error {
 		return err
 	}
 
-	// Create the https request
-
-	client := &http.Client{}
 	req, err := http.NewRequest("PUT", c.Url.ResolveReference(destUrl).String(), bytes.NewReader(src))
 	if err != nil {
 		return err
@@ -73,10 +75,11 @@ func (c *Client) Upload(src []byte, dest string) error {
 
 	req.SetBasicAuth(c.Username, c.Password)
 
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -106,9 +109,6 @@ func (c *Client) Download(path string) ([]byte, error) {
 		return nil, err
 	}
 
-	// Create the https request
-
-	client := &http.Client{}
 	req, err := http.NewRequest("GET", c.Url.ResolveReference(pathUrl).String(), nil)
 	if err != nil {
 		return nil, err
@@ -116,22 +116,23 @@ func (c *Client) Download(path string) ([]byte, error) {
 
 	req.SetBasicAuth(c.Username, c.Password)
 
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	error := Error{}
-	err = xml.Unmarshal(body, &error)
-	if err == nil {
-		if error.Exception != "" {
+	if resp.StatusCode >= 400 {
+		error := Error{}
+		if err := xml.Unmarshal(body, &error); err == nil && error.Exception != "" {
 			return nil, fmt.Errorf("Exception: %s, Message: %s", error.Exception, error.Message)
 		}
+		return nil, fmt.Errorf("download failed with status %d", resp.StatusCode)
 	}
 
 	return body, nil
@@ -143,14 +144,11 @@ func (c *Client) Exists(path string) bool {
 }
 
 func (c *Client) sendRequest(request string, path string) ([]byte, error) {
-	// Create the https request
-
 	folderUrl, err := url.Parse(path)
 	if err != nil {
 		return nil, err
 	}
 
-	client := &http.Client{}
 	req, err := http.NewRequest(request, c.Url.ResolveReference(folderUrl).String(), nil)
 	if err != nil {
 		return nil, err
@@ -158,10 +156,11 @@ func (c *Client) sendRequest(request string, path string) ([]byte, error) {
 
 	req.SetBasicAuth(c.Username, c.Password)
 
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
